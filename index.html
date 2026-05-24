@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f9; }
+        .box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        input { padding: 12px; width: 200px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; }
+        button { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Restricted Access</h2>
+        <input type="password" id="pw" placeholder="Enter Password">
+        <br>
+        <button onclick="verify()">Enter</button>
+    </div>
+
+    <script>
+        const TARGET_HASH = "ef92b778ba71572046200782352f20c153b65e9712a14603099d0e2e541f4f5a"; // "password123"
+
+        async function verify() {
+            const val = document.getElementById('pw').value;
+            const msgUint8 = new TextEncoder().encode(val);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (hashHex === TARGET_HASH) {
+                // Save a temporary 'authenticated' flag in the browser session
+                sessionStorage.setItem('isLoggedIn', 'true');
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Access Denied");
+                document.getElementById('pw').value = "";
+            }
+        }
+    </script>
+</body>
+</html>
